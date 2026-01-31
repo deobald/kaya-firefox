@@ -1,0 +1,47 @@
+{
+  "manifest_version": 2,
+  "name": "Kaya",
+  "version": "1.0.0",
+  "description": "Save bookmarks, quotes, and images to Kaya",
+  "author": "deobald.ca",
+  "homepage_url": "https://kaya.town",
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "ca.deobald.Kaya@deobald.ca",
+      "strict_min_version": "91.0"
+    }
+  },
+
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "contextMenus",
+    "nativeMessaging",
+    "storage",
+    "notifications"
+  ],
+
+  "icons": {
+    "48": "icons/icon-48.svg",
+    "96": "icons/icon-96.svg"
+  },
+
+  "browser_action": {
+    "default_icon": {
+      "48": "icons/icon-grey-48.svg",
+      "96": "icons/icon-grey-96.svg"
+    },
+    "default_title": "Save to Kaya",
+    "default_popup": "popup/popup.html"
+  },
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": false
+  }
+}

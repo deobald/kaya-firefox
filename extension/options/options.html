@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Kaya Preferences</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div id="options">
+    <h1>Kaya Preferences</h1>
+
+    <div class="form-group">
+      <label for="server">Kaya Server</label>
+      <input type="url" id="server" placeholder="https://kaya.town">
+      <p class="help-text">The URL of your Kaya server</p>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="you@example.com">
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Your password">
+    </div>
+
+    <div class="button-group">
+      <button id="save-btn" class="primary">Save</button>
+      <button id="test-btn">Test Connection</button>
+    </div>
+
+    <div id="status" class="hidden"></div>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>

@@ -12,6 +12,16 @@ Both will be named "Kaya", to the user. The application name can be `ca.deobald.
 
 The Firefox extension and the native sync daemon work together, as though they were a single program. Together, they follow the Architectural Decision Records, listed in [@arch](./doc/arch): the native sync daemon saves files to, and reads files from, the directories in `~/.kaya/`. It also performs a periodic sync with the HTTP service listed in [@adr-0002-service-sync.md](./doc/arch/adr-0002-service-sync.md). The Firefox extension primarily exists to provide the user a minimal user interface.
 
+### Logging
+
+Logs go in `~/.kaya/log`.
+
+Log when any significant event occurs. This includes human-triggered messages from the frontend, errors, non-empty file sync events, and so on.
+
+### Errors
+
+Errors must be signaled back to the Firefox plugin from the native host / sync engine. They should also be logged to `~/.kaya/log` for easy inspection.
+
 ### Messaging
 
 The Rust daemon communicates with the Firefox plugin via JSON messges. The plugin uses the browser's native messages to communicate with the Rust daemon over STDIN/STDOUT.
@@ -92,6 +102,8 @@ The Firefox extension should be built following the guidelines in the [Firefox B
 ### Config
 
 The user can right-click the Toolbar Button (see "Toolbar Button") to get a context menu from which they can choose "Preferences" and configure the Kaya Server location (defaults to https://kaya.town), email, and password. These should be sent to the Rust daemon using a Config Message (see "Messaging: Config").
+
+The first time the user clicks the Toolbar Button to save a bookmark, the extension should prompt them with a popup to enter their Kaya Server, email, and password.
 
 ### Toolbar Button
 

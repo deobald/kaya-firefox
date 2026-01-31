@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="popup.css" />
+    </head>
+    <body>
+        <div id="popup">
+            <!-- Setup view (shown on first use) -->
+            <div id="setup-view" class="hidden">
+                <h2>Welcome to Kaya</h2>
+                <p class="setup-intro">
+                    Enter your Kaya server details to get started.
+                </p>
+
+                <div class="form-group">
+                    <label for="setup-server">Kaya Server</label>
+                    <input
+                        type="url"
+                        id="setup-server"
+                        placeholder="https://kaya.town"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="setup-email">Email</label>
+                    <input
+                        type="email"
+                        id="setup-email"
+                        placeholder="you@example.com"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="setup-password">Password</label>
+                    <input
+                        type="password"
+                        id="setup-password"
+                        placeholder="Your password"
+                    />
+                </div>
+
+                <button id="setup-save-btn" class="primary">
+                    Save & Continue
+                </button>
+
+                <div id="setup-error" class="hidden"></div>
+            </div>
+
+            <!-- Bookmark view (shown after setup) -->
+            <div id="bookmark-view" class="hidden">
+                <div id="status">
+                    <span id="status-icon"></span>
+                    <span id="status-text">Saving bookmark...</span>
+                </div>
+                <div id="note-container">
+                    <label for="note-input">Add a Note</label>
+                    <input
+                        type="text"
+                        id="note-input"
+                        placeholder="Optional note..."
+                    />
+                </div>
+                <div id="error-container" class="hidden">
+                    <span id="error-text"></span>
+                </div>
+            </div>
+        </div>
+        <script src="popup.js"></script>
+    </body>
+</html>
