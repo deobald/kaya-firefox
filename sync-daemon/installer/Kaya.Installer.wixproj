@@ -1,0 +1,22 @@
+<Project Sdk="WixToolset.Sdk/4.0.5">
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <Platform>x64</Platform>
+    <InstallerPlatform>x64</InstallerPlatform>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Paths to built artifacts - adjust these as needed -->
+    <BinaryPath Condition="'$(BinaryPath)' == ''">$(MSBuildProjectDirectory)\..\target\release</BinaryPath>
+    <ManifestPath Condition="'$(ManifestPath)' == ''">$(MSBuildProjectDirectory)\..\manifests</ManifestPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DefineConstants>BinaryPath=$(BinaryPath);ManifestPath=$(ManifestPath)</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="4.0.5" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="4.0.5" />
+  </ItemGroup>
+</Project>
