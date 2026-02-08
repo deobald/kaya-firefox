@@ -1,11 +1,9 @@
 {
+  "categories": ["bookmarks"],
+  "summary": {
+    "en-US": "Save bookmarks, quotes, and images with Save Button"
+  },
   "version": {
     "license": "AGPL-3.0-only"
-  },
-  "listed": {
-    "categories": ["bookmarks"],
-    "summary": {
-      "en-US": "Save bookmarks, quotes, and images with Save Button"
-    }
   }
 }
