@@ -35,7 +35,12 @@ This will:
 
 #### For Production
 
-Build and submit to addons.mozilla.org (see Extension Workshop docs).
+Build and submit to addons.mozilla.org (see Extension Workshop docs). Automated in GitHub Actions, which kicks off with a new tag:
+
+```
+git tag v0.1.1
+git push origin v0.1.1
+```
 
 ## Usage
 

@@ -155,7 +155,7 @@ A one-time `extension/amo-metadata.json` is needed for the first listed submissi
 
 ```json
 {
-  "version": { "license": "AGPL-3.0" },
+  "version": { "license": "AGPL-3.0-only" },
   "listed": {
     "categories": ["bookmarks"],
     "summary": { "en-US": "Save bookmarks, quotes, and images with Save Button" }
