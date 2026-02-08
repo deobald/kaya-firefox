@@ -1,0 +1,54 @@
+name: Sign Firefox Extension
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  sign-extension:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install web-ext
+        run: npm install -g web-ext
+
+      - name: Lint extension
+        run: web-ext lint --source-dir=extension/
+
+      - name: Sign for AMO (listed)
+        run: |
+          web-ext sign \
+            --channel=listed \
+            --api-key=${{ secrets.AMO_API_KEY }} \
+            --api-secret=${{ secrets.AMO_API_SECRET }} \
+            --amo-metadata=extension/amo-metadata.json \
+            --source-dir=extension/
+
+      - name: Sign for self-distribution (unlisted)
+        run: |
+          web-ext sign \
+            --channel=unlisted \
+            --api-key=${{ secrets.AMO_API_KEY }} \
+            --api-secret=${{ secrets.AMO_API_SECRET }} \
+            --source-dir=extension/ \
+            --artifacts-dir=web-ext-artifacts/
+
+      - name: Upload unlisted .xpi as build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: savebutton-extension-unlisted
+          path: web-ext-artifacts/*.xpi
+
+      - name: Attach unlisted .xpi to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: web-ext-artifacts/*.xpi

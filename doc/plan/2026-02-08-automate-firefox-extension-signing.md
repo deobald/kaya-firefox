@@ -158,7 +158,7 @@ A one-time `extension/amo-metadata.json` is needed for the first listed submissi
   "version": { "license": "AGPL-3.0" },
   "listed": {
     "categories": ["bookmarks"],
-    "summary": { "en-US": "Save bookmarks, quotes, and images to Kaya" }
+    "summary": { "en-US": "Save bookmarks, quotes, and images with Save Button" }
   }
 }
 ```
@@ -166,7 +166,7 @@ A one-time `extension/amo-metadata.json` is needed for the first listed submissi
 ### Why Both Listed and Unlisted?
 
 **Listed (`--channel=listed`):**
-- Users discover and install Kaya from AMO
+- Users discover and install Save Button from AMO
 - AMO handles automatic updates -- no custom update mechanism needed
 - The CLAUDE.md spec says "prepared for publishing on https://addons.mozilla.org"
 
@@ -182,6 +182,6 @@ Unlisted extensions bundled with installers will not auto-update via AMO. Two op
 
 1. **Rely on the installer:** When the user updates the native daemon (via apt/dnf/brew/chocolatey), the new installer bundles the latest signed `.xpi`. This is the simplest approach and consistent with how the daemon is already distributed.
 
-2. **`update_url` in `manifest.json`:** The extension's `browser_specific_settings.gecko.update_url` can point to a JSON file hosted on kaya.town that tells Firefox where to download new versions. This adds a self-hosted update server concern but decouples extension updates from daemon updates.
+2. **`update_url` in `manifest.json`:** The extension's `browser_specific_settings.gecko.update_url` can point to a JSON file hosted on savebutton.com that tells Firefox where to download new versions. This adds a self-hosted update server concern but decouples extension updates from daemon updates.
 
 Option 1 is recommended for simplicity at launch. Option 2 can be added later if needed.
