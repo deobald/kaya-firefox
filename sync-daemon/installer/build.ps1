@@ -36,7 +36,9 @@ try {
     $BinaryPath = Join-Path $ProjectDir "target\x86_64-pc-windows-msvc\release"
     $ManifestPath = Join-Path $ProjectDir "manifests"
 
-    dotnet build -c Release -p:BinaryPath="$BinaryPath" -p:ManifestPath="$ManifestPath"
+    $XpiPath = Join-Path (Split-Path $ProjectDir -Parent) "savebutton.xpi"
+
+    dotnet build -c Release -p:BinaryPath="$BinaryPath" -p:ManifestPath="$ManifestPath" -p:XpiPath="$XpiPath"
     if ($LASTEXITCODE -ne 0) {
         throw "WiX build failed"
     }

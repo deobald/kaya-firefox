@@ -3,7 +3,7 @@ name: Sign Firefox Extension
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
 
 jobs:
   sign-extension:
@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install web-ext
         run: npm install -g web-ext
@@ -52,3 +52,144 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: web-ext-artifacts/*.xpi
+
+  build-installers:
+    needs: sign-extension
+    strategy:
+      matrix:
+        include:
+          - target: deb
+            os: ubuntu-latest
+          - target: rpm
+            os: ubuntu-latest
+          - target: msi
+            os: windows-latest
+          - target: pkg
+            os: macos-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download unlisted .xpi
+        uses: actions/download-artifact@v4
+        with:
+          name: savebutton-extension-unlisted
+          path: xpi-artifact/
+
+      - name: Locate .xpi file
+        id: xpi
+        shell: bash
+        run: |
+          XPI_FILE=$(ls xpi-artifact/*.xpi | head -1)
+          echo "path=$XPI_FILE" >> "$GITHUB_OUTPUT"
+
+      # --- Linux: DEB ---
+      - name: Install Rust toolchain (Linux)
+        if: matrix.target == 'deb' || matrix.target == 'rpm'
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Build sync daemon (Linux)
+        if: matrix.target == 'deb' || matrix.target == 'rpm'
+        working-directory: sync-daemon
+        run: cargo build --release --target x86_64-unknown-linux-gnu
+
+      - name: Build DEB package
+        if: matrix.target == 'deb'
+        run: |
+          sync-daemon/packaging/build-deb.sh \
+            sync-daemon/target/x86_64-unknown-linux-gnu/release/savebutton-sync-daemon \
+            "${{ steps.xpi.outputs.path }}"
+
+      - name: Upload DEB to GitHub Release
+        if: matrix.target == 'deb'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: sync-daemon/packaging/build-deb/*.deb
+
+      # --- Linux: RPM ---
+      - name: Install rpmbuild
+        if: matrix.target == 'rpm'
+        run: sudo apt-get update && sudo apt-get install -y rpm
+
+      - name: Build RPM package
+        if: matrix.target == 'rpm'
+        run: |
+          sync-daemon/packaging/build-rpm.sh \
+            sync-daemon/target/x86_64-unknown-linux-gnu/release/savebutton-sync-daemon \
+            "${{ steps.xpi.outputs.path }}"
+
+      - name: Upload RPM to GitHub Release
+        if: matrix.target == 'rpm'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: sync-daemon/packaging/build-rpm/rpmbuild/RPMS/**/*.rpm
+
+      # --- Windows: MSI ---
+      - name: Install Rust toolchain (Windows)
+        if: matrix.target == 'msi'
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Build sync daemon (Windows)
+        if: matrix.target == 'msi'
+        working-directory: sync-daemon
+        run: cargo build --release --target x86_64-pc-windows-msvc
+
+      - name: Prepare .xpi for MSI build
+        if: matrix.target == 'msi'
+        shell: bash
+        run: cp "${{ steps.xpi.outputs.path }}" savebutton.xpi
+
+      - name: Build MSI installer
+        if: matrix.target == 'msi'
+        working-directory: sync-daemon/installer
+        run: |
+          $BinaryPath = Join-Path $env:GITHUB_WORKSPACE "sync-daemon\target\x86_64-pc-windows-msvc\release"
+          $ManifestPath = Join-Path $env:GITHUB_WORKSPACE "sync-daemon\manifests"
+          $XpiPath = Join-Path $env:GITHUB_WORKSPACE "savebutton.xpi"
+          dotnet build -c Release -p:BinaryPath="$BinaryPath" -p:ManifestPath="$ManifestPath" -p:XpiPath="$XpiPath"
+        shell: pwsh
+
+      - name: Upload MSI to GitHub Release
+        if: matrix.target == 'msi'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: sync-daemon/installer/bin/Release/*.msi
+
+      # --- macOS: PKG ---
+      - name: Install Rust toolchain (macOS)
+        if: matrix.target == 'pkg'
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Build sync daemon (macOS universal)
+        if: matrix.target == 'pkg'
+        working-directory: sync-daemon
+        run: |
+          cargo build --release --target aarch64-apple-darwin
+          cargo build --release --target x86_64-apple-darwin
+          lipo -create \
+            target/aarch64-apple-darwin/release/savebutton-sync-daemon \
+            target/x86_64-apple-darwin/release/savebutton-sync-daemon \
+            -output target/release/savebutton-sync-daemon-universal
+          chmod +x target/release/savebutton-sync-daemon-universal
+
+      - name: Build PKG installer
+        if: matrix.target == 'pkg'
+        run: |
+          sync-daemon/packaging/build-pkg.sh \
+            sync-daemon/target/release/savebutton-sync-daemon-universal \
+            "${{ steps.xpi.outputs.path }}"
+
+      - name: Upload PKG to GitHub Release
+        if: matrix.target == 'pkg'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: sync-daemon/packaging/build-pkg/*.pkg

@@ -60,6 +60,19 @@
         </Component>
 
         <Component
+                    Id="ExtensionXpi"
+                    Guid="F6A7B8C9-D0E1-2345-FABC-678901234567"
+                    Bitness="always64"
+                >
+          <File
+                        Id="SaveButtonXpi"
+                        Source="$(var.XpiPath)"
+                        Name="savebutton.xpi"
+                        KeyPath="yes"
+                    />
+        </Component>
+
+        <Component
                     Id="RegistryEntries"
                     Guid="C3D4E5F6-A7B8-9012-CDEF-345678901234"
                     Bitness="always64"
@@ -106,6 +119,7 @@
     <Feature Id="MainFeature" Title="Save Button Sync Daemon" Level="1">
       <ComponentRef Id="MainExecutable" />
       <ComponentRef Id="NativeManifest" />
+      <ComponentRef Id="ExtensionXpi" />
       <ComponentRef Id="RegistryEntries" />
       <ComponentRef Id="AngaDirectory" />
       <ComponentRef Id="MetaDirectory" />
@@ -127,11 +141,28 @@
             Return="ignore"
         />
 
+    <!-- Custom action to open the .xpi in Firefox after install -->
+    <SetProperty
+            Id="OpenXpi"
+            Value="&quot;[SystemFolder]cmd.exe&quot; /c start &quot;&quot; &quot;[INSTALLFOLDER]savebutton.xpi&quot;"
+            Before="OpenXpi"
+            Sequence="execute"
+        />
+    <CustomAction
+            Id="OpenXpi"
+            BinaryRef="Wix4UtilCA_X64"
+            DllEntry="WixQuietExec64"
+            Execute="deferred"
+            Impersonate="yes"
+            Return="ignore"
+        />
+
     <InstallExecuteSequence>
       <Custom
                 Action="CreateKayaDir"
                 Before="InstallFinalize"
             >NOT Installed</Custom>
+      <Custom Action="OpenXpi" After="InstallFinalize">NOT Installed</Custom>
     </InstallExecuteSequence>
 
   </Package>
