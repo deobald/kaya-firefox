@@ -96,7 +96,7 @@
   async function saveSetup() {
     hideSetupError();
 
-    const server = setupServerInput.value.trim() || "https://kaya.town";
+    const server = setupServerInput.value.trim() || "https://savebutton.com";
     const email = setupEmailInput.value.trim();
     const password = setupPasswordInput.value;
 
@@ -272,7 +272,7 @@
     } else {
       setupView.classList.remove("hidden");
       // Pre-fill server with default
-      setupServerInput.value = "https://kaya.town";
+      setupServerInput.value = "https://savebutton.com";
     }
   }
 

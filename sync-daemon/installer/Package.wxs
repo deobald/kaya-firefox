@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--
-  Kaya Sync Daemon Windows Installer
+  Save Button Sync Daemon Windows Installer
 
   Build requirements:
   - WiX Toolset v4+ (https://wixtoolset.org/)
@@ -13,38 +12,66 @@
 
   The resulting MSI will be in bin/Release/
 -->
-
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package
-    Name="Kaya Sync Daemon"
-    Manufacturer="deobald.ca"
-    Version="1.0.0.0"
-    UpgradeCode="E8F3B4A1-2C5D-4E6F-8A9B-0C1D2E3F4A5B"
-    Scope="perMachine">
+        Name="Save Button Sync Daemon"
+        Manufacturer="deobald.ca"
+        Version="1.0.0.0"
+        UpgradeCode="E8F3B4A1-2C5D-4E6F-8A9B-0C1D2E3F4A5B"
+        Scope="perMachine"
+    >
 
     <SummaryInformation
-      Description="Kaya Sync Daemon - Native messaging host for the Kaya Firefox extension"
-      Manufacturer="deobald.ca" />
+            Description="Save Button Sync Daemon - Native messaging host for the Save Button Firefox extension"
+            Manufacturer="deobald.ca"
+        />
 
     <MajorUpgrade
-      DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+            DowngradeErrorMessage="A newer version of [ProductName] is already installed."
+        />
 
     <MediaTemplate EmbedCab="yes" />
 
     <!-- Installation directory -->
     <StandardDirectory Id="ProgramFiles64Folder">
-      <Directory Id="INSTALLFOLDER" Name="Kaya">
-        <Component Id="MainExecutable" Guid="A1B2C3D4-E5F6-7890-ABCD-EF1234567890" Bitness="always64">
-          <File Id="KayaSyncDaemon" Source="$(var.BinaryPath)\kaya-sync-daemon.exe" KeyPath="yes" />
+      <Directory Id="INSTALLFOLDER" Name="Save Button">
+        <Component
+                    Id="MainExecutable"
+                    Guid="A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+                    Bitness="always64"
+                >
+          <File
+                        Id="KayaSyncDaemon"
+                        Source="$(var.BinaryPath)\savebutton-sync-daemon.exe"
+                        KeyPath="yes"
+                    />
         </Component>
 
-        <Component Id="NativeManifest" Guid="B2C3D4E5-F6A7-8901-BCDE-F23456789012" Bitness="always64">
-          <File Id="NativeMessagingManifest" Source="$(var.ManifestPath)\ca.deobald.Kaya.nativehost.windows.json" KeyPath="yes" />
+        <Component
+                    Id="NativeManifest"
+                    Guid="B2C3D4E5-F6A7-8901-BCDE-F23456789012"
+                    Bitness="always64"
+                >
+          <File
+                        Id="NativeMessagingManifest"
+                        Source="$(var.ManifestPath)\org.savebutton.nativehost.windows.json"
+                        KeyPath="yes"
+                    />
         </Component>
 
-        <Component Id="RegistryEntries" Guid="C3D4E5F6-A7B8-9012-CDEF-345678901234" Bitness="always64">
-          <RegistryKey Root="HKLM" Key="SOFTWARE\Mozilla\NativeMessagingHosts\ca.deobald.Kaya.nativehost">
-            <RegistryValue Type="string" Value="[INSTALLFOLDER]ca.deobald.Kaya.nativehost.windows.json" />
+        <Component
+                    Id="RegistryEntries"
+                    Guid="C3D4E5F6-A7B8-9012-CDEF-345678901234"
+                    Bitness="always64"
+                >
+          <RegistryKey
+                        Root="HKLM"
+                        Key="SOFTWARE\Mozilla\NativeMessagingHosts\org.savebutton.nativehost"
+                    >
+            <RegistryValue
+                            Type="string"
+                            Value="[INSTALLFOLDER]org.savebutton.nativehost.windows.json"
+                        />
           </RegistryKey>
         </Component>
       </Directory>
@@ -54,13 +81,21 @@
     <StandardDirectory Id="LocalAppDataFolder">
       <Directory Id="KayaAppData" Name=".kaya">
         <Directory Id="AngaDir" Name="anga">
-          <Component Id="AngaDirectory" Guid="D4E5F6A7-B8C9-0123-DEFA-456789012345" Bitness="always64">
+          <Component
+                        Id="AngaDirectory"
+                        Guid="D4E5F6A7-B8C9-0123-DEFA-456789012345"
+                        Bitness="always64"
+                    >
             <CreateFolder />
             <RemoveFolder Id="RemoveAngaDir" On="uninstall" />
           </Component>
         </Directory>
         <Directory Id="MetaDir" Name="meta">
-          <Component Id="MetaDirectory" Guid="E5F6A7B8-C9D0-1234-EFAB-567890123456" Bitness="always64">
+          <Component
+                        Id="MetaDirectory"
+                        Guid="E5F6A7B8-C9D0-1234-EFAB-567890123456"
+                        Bitness="always64"
+                    >
             <CreateFolder />
             <RemoveFolder Id="RemoveMetaDir" On="uninstall" />
           </Component>
@@ -68,7 +103,7 @@
       </Directory>
     </StandardDirectory>
 
-    <Feature Id="MainFeature" Title="Kaya Sync Daemon" Level="1">
+    <Feature Id="MainFeature" Title="Save Button Sync Daemon" Level="1">
       <ComponentRef Id="MainExecutable" />
       <ComponentRef Id="NativeManifest" />
       <ComponentRef Id="RegistryEntries" />
@@ -77,11 +112,26 @@
     </Feature>
 
     <!-- Custom action to create .kaya in user profile (LocalAppData won't be right) -->
-    <SetProperty Id="CreateKayaDir" Value="&quot;[SystemFolder]cmd.exe&quot; /c mkdir &quot;%USERPROFILE%\.kaya\anga&quot; &amp;&amp; mkdir &quot;%USERPROFILE%\.kaya\meta&quot;" Before="CreateKayaDir" Sequence="execute" />
-    <CustomAction Id="CreateKayaDir" BinaryRef="Wix4UtilCA_X64" DllEntry="WixQuietExec64" Execute="deferred" Impersonate="yes" Return="ignore" />
+    <SetProperty
+            Id="CreateKayaDir"
+            Value="&quot;[SystemFolder]cmd.exe&quot; /c mkdir &quot;%USERPROFILE%\.kaya\anga&quot; &amp;&amp; mkdir &quot;%USERPROFILE%\.kaya\meta&quot;"
+            Before="CreateKayaDir"
+            Sequence="execute"
+        />
+    <CustomAction
+            Id="CreateKayaDir"
+            BinaryRef="Wix4UtilCA_X64"
+            DllEntry="WixQuietExec64"
+            Execute="deferred"
+            Impersonate="yes"
+            Return="ignore"
+        />
 
     <InstallExecuteSequence>
-      <Custom Action="CreateKayaDir" Before="InstallFinalize">NOT Installed</Custom>
+      <Custom
+                Action="CreateKayaDir"
+                Before="InstallFinalize"
+            >NOT Installed</Custom>
     </InstallExecuteSequence>
 
   </Package>

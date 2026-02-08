@@ -1,10 +1,10 @@
 #Requires -RunAsAdministrator
 <#
 .SYNOPSIS
-    Installs the Kaya Sync Daemon on Windows.
+    Installs the Save Button Sync Daemon on Windows.
 
 .DESCRIPTION
-    This script builds and installs the Kaya Sync Daemon native messaging host
+    This script builds and installs the Save Button Sync Daemon native messaging host
     for the Firefox extension. It installs the binary to Program Files and
     registers the native messaging manifest in the Windows Registry.
 
@@ -15,12 +15,12 @@
 
 $ErrorActionPreference = "Stop"
 
-$BinaryName = "kaya-sync-daemon.exe"
-$ManifestName = "ca.deobald.Kaya.nativehost"
-$InstallDir = "$env:ProgramFiles\Kaya"
+$BinaryName = "savebutton-sync-daemon.exe"
+$ManifestName = "org.savebutton.nativehost"
+$InstallDir = "$env:ProgramFiles\Save Button"
 $KayaDataDir = "$env:USERPROFILE\.kaya"
 
-Write-Host "Building Kaya Sync Daemon..." -ForegroundColor Cyan
+Write-Host "Building Save Button Sync Daemon..." -ForegroundColor Cyan
 Push-Location $PSScriptRoot
 try {
     cargo build --release
@@ -42,8 +42,8 @@ $BinaryDest = Join-Path $InstallDir $BinaryName
 Copy-Item -Path $BinarySource -Destination $BinaryDest -Force
 
 Write-Host "Installing native messaging manifest..." -ForegroundColor Cyan
-$ManifestSource = Join-Path $PSScriptRoot "manifests\ca.deobald.Kaya.nativehost.windows.json"
-$ManifestDest = Join-Path $InstallDir "ca.deobald.Kaya.nativehost.json"
+$ManifestSource = Join-Path $PSScriptRoot "manifests\org.savebutton.nativehost.windows.json"
+$ManifestDest = Join-Path $InstallDir "org.savebutton.nativehost.json"
 Copy-Item -Path $ManifestSource -Destination $ManifestDest -Force
 
 Write-Host "Registering native messaging host in registry..." -ForegroundColor Cyan
@@ -53,7 +53,7 @@ if (-not (Test-Path $RegistryPath)) {
 }
 Set-ItemProperty -Path $RegistryPath -Name "(Default)" -Value $ManifestDest
 
-Write-Host "Creating Kaya data directories..." -ForegroundColor Cyan
+Write-Host "Creating data directories..." -ForegroundColor Cyan
 $AngaDir = Join-Path $KayaDataDir "anga"
 $MetaDir = Join-Path $KayaDataDir "meta"
 if (-not (Test-Path $AngaDir)) {
@@ -73,4 +73,4 @@ Write-Host "Data directory: $KayaDataDir" -ForegroundColor White
 Write-Host ""
 Write-Host "Next steps:" -ForegroundColor Yellow
 Write-Host "1. Install the Firefox extension from about:debugging or addons.mozilla.org"
-Write-Host "2. Configure the extension with your Kaya server credentials"
+Write-Host "2. Configure the extension with your Save Button server credentials"

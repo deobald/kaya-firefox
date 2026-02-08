@@ -1,7 +1,0 @@
-{
-  "name": "ca.deobald.Kaya.nativehost",
-  "description": "Kaya Sync Daemon - Native messaging host for the Kaya Firefox extension",
-  "path": "/usr/local/bin/kaya-sync-daemon",
-  "type": "stdio",
-  "allowed_extensions": ["ca.deobald.Kaya@deobald.ca"]
-}

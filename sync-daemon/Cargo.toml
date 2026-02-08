@@ -1,13 +1,13 @@
 [package]
-name = "kaya-sync-daemon"
+name = "savebutton-sync-daemon"
 version = "1.0.0"
 edition = "2021"
 authors = ["deobald.ca"]
-description = "Native sync daemon for the Kaya Firefox extension"
+description = "Native sync daemon for the Save Button Firefox extension"
 license = "MIT"
 
 [[bin]]
-name = "kaya-sync-daemon"
+name = "savebutton-sync-daemon"
 path = "src/main.rs"
 
 [dependencies]

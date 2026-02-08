@@ -1,10 +1,10 @@
 #Requires -RunAsAdministrator
 <#
 .SYNOPSIS
-    Uninstalls the Kaya Sync Daemon from Windows.
+    Uninstalls the Save Button Sync Daemon from Windows.
 
 .DESCRIPTION
-    This script removes the Kaya Sync Daemon binary, native messaging manifest,
+    This script removes the Save Button Sync Daemon binary, native messaging manifest,
     and registry entries. It does NOT remove user data in ~/.kaya.
 
 .NOTES
@@ -13,11 +13,11 @@
 
 $ErrorActionPreference = "Stop"
 
-$BinaryName = "kaya-sync-daemon.exe"
-$ManifestName = "ca.deobald.Kaya.nativehost"
-$InstallDir = "$env:ProgramFiles\Kaya"
+$BinaryName = "savebutton-sync-daemon.exe"
+$ManifestName = "org.savebutton.nativehost"
+$InstallDir = "$env:ProgramFiles\Save Button"
 
-Write-Host "Uninstalling Kaya Sync Daemon..." -ForegroundColor Cyan
+Write-Host "Uninstalling Save Button Sync Daemon..." -ForegroundColor Cyan
 
 # Remove registry entry
 Write-Host "Removing registry entry..." -ForegroundColor Cyan
@@ -42,4 +42,4 @@ Write-Host ""
 Write-Host "Uninstallation complete!" -ForegroundColor Green
 Write-Host ""
 Write-Host "Note: User data in $env:USERPROFILE\.kaya was NOT removed." -ForegroundColor Yellow
-Write-Host "Delete it manually if you want to remove all Kaya data." -ForegroundColor Yellow
+Write-Host "Delete it manually if you want to remove all Save Button data." -ForegroundColor Yellow

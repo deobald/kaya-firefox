@@ -1,14 +1,14 @@
 {
   "manifest_version": 2,
-  "name": "Kaya",
+  "name": "Save Button",
   "version": "1.0.0",
-  "description": "Save bookmarks, quotes, and images to Kaya",
+  "description": "Save bookmarks, quotes, and images with Save Button",
   "author": "deobald.ca",
-  "homepage_url": "https://kaya.town",
+  "homepage_url": "https://savebutton.com",
 
   "browser_specific_settings": {
     "gecko": {
-      "id": "ca.deobald.Kaya@deobald.ca",
+      "id": "org.savebutton@savebutton.org",
       "strict_min_version": "91.0"
     }
   },
@@ -32,7 +32,7 @@
       "48": "icons/icon-grey-48.svg",
       "96": "icons/icon-grey-96.svg"
     },
-    "default_title": "Save to Kaya",
+    "default_title": "Add to Save Button",
     "default_popup": "popup/popup.html"
   },
 

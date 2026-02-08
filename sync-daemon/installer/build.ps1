@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Builds the Kaya Sync Daemon MSI installer.
+    Builds the Save Button Sync Daemon MSI installer.
 
 .DESCRIPTION
     This script builds the Rust binary and then creates an MSI installer
@@ -18,7 +18,7 @@ $ErrorActionPreference = "Stop"
 $ScriptDir = $PSScriptRoot
 $ProjectDir = Split-Path $ScriptDir -Parent
 
-Write-Host "Building Kaya Sync Daemon (Release)..." -ForegroundColor Cyan
+Write-Host "Building Save Button Sync Daemon (Release)..." -ForegroundColor Cyan
 Push-Location $ProjectDir
 try {
     cargo build --release --target x86_64-pc-windows-msvc
@@ -44,7 +44,7 @@ try {
     Pop-Location
 }
 
-$MsiPath = Join-Path $ScriptDir "bin\Release\Kaya.Installer.msi"
+$MsiPath = Join-Path $ScriptDir "bin\Release\SaveButton.Installer.msi"
 if (Test-Path $MsiPath) {
     Write-Host ""
     Write-Host "Build successful!" -ForegroundColor Green
