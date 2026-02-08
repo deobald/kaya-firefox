@@ -7,6 +7,21 @@ This repository will contain two tightly related projects:
 
 Both will be named "Kaya", to the user. The application name can be `ca.deobald.Kaya.nativehost` in the native messaging manifest. The application (gecko) ID can be `ca.deobald.Kaya@deobald.ca` in both the native messaging manifest (`ca.deobald.Kaya.nativehost.json`) and the extension's `manifest.json`. Though as long as it's correct and symmetrical, the name/id doesn't matter.
 
+## Planning
+
+Read [@PLAN.md](./doc/plan/PLAN.md) and follow those instructions for creating a plan before any work is performed.
+
+---
+
+## Prompt History
+
+You can find a chronological list of significant past prompts in [@PROMPTS.md](./doc/PROMPTS.md). Major prompts are titled with Subheading Level Two (\#\#), sub-prompts are titled with Subheading Level Three (\#\#\#).
+
+The current major prompt or bugfix will probably also be in this file, uncommitted.
+
+This file will get large, over time, so only prioritize reading through it if you require additional context.
+
+---
 
 ## Architecture
 
@@ -89,7 +104,7 @@ Bookmarks will follow the file format `~/.kaya/anga/2026-01-27T171207-www-deobal
 
 Bookmarks are saved as `.url` files which have the format:
 
-```toml
+```
 [InternetShortcut]
 URL=https://perkeep.org/
 ```
