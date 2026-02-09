@@ -24,6 +24,14 @@ This will:
 - Install the native messaging manifest
 - Create `~/.kaya/anga/` and `~/.kaya/meta/` directories
 
+### 1.b Build the Firefox Extension locally (optional)
+
+```
+brew install web-ext
+npm install -g web-ext
+web-ext build --source-dir=extension/
+```
+
 ### 2. Install the Firefox Extension
 
 #### For Development

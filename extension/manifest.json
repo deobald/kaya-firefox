@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Save Button",
-  "version": "1.0.0",
+  "version": "0.1.2",
   "description": "Save bookmarks, quotes, and images with Save Button",
   "author": "deobald.ca",
   "homepage_url": "https://savebutton.com",
@@ -9,7 +9,11 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "org.savebutton@savebutton.org",
-      "strict_min_version": "91.0"
+      "strict_min_version": "91.0",
+      "data_collection_permissions": {
+        "required": ["none"],
+        "optional": []
+      }
     }
   },
 
