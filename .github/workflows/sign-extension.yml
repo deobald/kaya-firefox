@@ -24,14 +24,17 @@ jobs:
       - name: Lint extension
         run: web-ext lint --source-dir=extension/
 
-      - name: Sign for AMO (listed)
-        run: |
-          web-ext sign \
-            --channel=listed \
-            --api-key=${{ secrets.AMO_API_KEY }} \
-            --api-secret=${{ secrets.AMO_API_SECRET }} \
-            --amo-metadata=extension/amo-metadata.json \
-            --source-dir=extension/
+      # TODO: Re-enable listed signing once the first manual AMO submission
+      #       has been reviewed and approved. Until then, `web-ext sign
+      #       --channel=listed` blocks indefinitely waiting for manual review.
+      # - name: Sign for AMO (listed)
+      #   run: |
+      #     web-ext sign \
+      #       --channel=listed \
+      #       --api-key=${{ secrets.AMO_API_KEY }} \
+      #       --api-secret=${{ secrets.AMO_API_SECRET }} \
+      #       --amo-metadata=extension/amo-metadata.json \
+      #       --source-dir=extension/
 
       - name: Sign for self-distribution (unlisted)
         run: |
