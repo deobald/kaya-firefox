@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Save Button",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Save bookmarks, quotes, and images with Save Button",
   "author": "deobald.ca",
   "homepage_url": "https://savebutton.com",
