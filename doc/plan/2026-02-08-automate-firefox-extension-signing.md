@@ -186,10 +186,6 @@ Unlisted extensions bundled with installers will not auto-update via AMO. Two op
 
 Option 1 is recommended for simplicity at launch. Option 2 can be added later if needed.
 
-## Outstanding: Listed Signing Disabled in CI
+## Resolved: Listed Signing Re-enabled in CI
 
-**Status:** The `Sign for AMO (listed)` step in `.github/workflows/sign-extension.yml` is commented out.
-
-**Why:** For a brand new extension, the first listed submission goes into AMO's manual review queue. `web-ext sign --channel=listed` blocks indefinitely waiting for approval, causing the CI job to hang and eventually time out. The first version (0.1.2) was submitted manually via the AMO Developer Hub and is currently "Awaiting Review."
-
-**When to re-enable:** Once the first listed version is approved by AMO, subsequent versions typically receive auto-approval. At that point, uncomment the listed signing step in the workflow. Search for the `TODO: Re-enable listed signing` comment in the workflow file.
+The `Sign for AMO (listed)` step was temporarily commented out because the first listed submission was stuck in AMO's manual review queue, causing `web-ext sign --channel=listed` to block indefinitely. The first version (0.1.2) was submitted manually via the AMO Developer Hub. Listed signing has been re-enabled as of v0.1.4.
