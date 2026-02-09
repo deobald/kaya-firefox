@@ -27,8 +27,7 @@ This will:
 ### 1.b Build the Firefox Extension locally (optional)
 
 ```
-brew install web-ext
-npm install -g web-ext
+npm install -g web-ext # or brew install web-ext
 web-ext build --source-dir=extension/
 ```
 
