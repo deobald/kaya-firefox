@@ -4,7 +4,7 @@ use rand::RngCore;
 use ring::aead::{Aad, LessSafeKey, Nonce, UnboundKey, AES_256_GCM};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
-use std::fs::{self, OpenOptions};
+use std::fs;
 use std::io::{self, Read, Write};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -16,33 +16,34 @@ use thiserror::Error;
 const NONCE_LEN: usize = 12;
 const KEY_LEN: usize = 32;
 
-fn get_log_path() -> PathBuf {
-    get_kaya_dir().join("log")
-}
+fn setup_logging() {
+    let log_path = get_kaya_dir().join("log");
 
-fn log_message(level: &str, message: &str) {
-    let timestamp = Utc::now().format("%Y-%m-%dT%H:%M:%S%.3fZ");
-    let formatted = format!("[{}] {}: {}", timestamp, level, message);
+    let base = fern::Dispatch::new()
+        .format(|out, message, record| {
+            out.finish(format_args!(
+                "[{}] {}: {}",
+                Utc::now().format("%Y-%m-%dT%H:%M:%S%.3fZ"),
+                record.level(),
+                message
+            ))
+        })
+        .level(log::LevelFilter::Info)
+        .chain(io::stderr());
 
-    // Always write to stderr
-    eprintln!("{}", formatted);
+    let dispatch = if let Ok(log_file) = fern::log_file(&log_path) {
+        base.chain(log_file)
+    } else {
+        eprintln!(
+            "Warning: could not open log file {:?}, logging to stderr only",
+            log_path
+        );
+        base
+    };
 
-    // Also append to log file
-    if let Ok(mut file) = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(get_log_path())
-    {
-        let _ = writeln!(file, "{}", formatted);
+    if let Err(e) = dispatch.apply() {
+        eprintln!("Warning: failed to initialize logging: {}", e);
     }
-}
-
-fn log_error(message: &str) {
-    log_message("ERROR", message);
-}
-
-fn log_info(message: &str) {
-    log_message("INFO", message);
 }
 
 #[derive(Error, Debug)]
@@ -188,10 +189,11 @@ fn save_config(config: &Config) -> Result<(), KayaError> {
 }
 
 fn handle_config_message(msg: &IncomingMessage) -> Result<(), KayaError> {
-    log_info(&format!(
+    log::info!(
         "Received config message: server={:?}, email={:?}",
-        msg.server, msg.email
-    ));
+        msg.server,
+        msg.email
+    );
 
     let server = msg.server.clone();
     let email = msg.email.clone();
@@ -216,10 +218,11 @@ fn handle_config_message(msg: &IncomingMessage) -> Result<(), KayaError> {
 }
 
 fn handle_anga_message(msg: &IncomingMessage) -> Result<(), KayaError> {
-    log_info(&format!(
+    log::info!(
         "Received anga message: filename={:?}, type={:?}",
-        msg.filename, msg.content_type
-    ));
+        msg.filename,
+        msg.content_type
+    );
 
     ensure_directories()?;
 
@@ -253,10 +256,7 @@ fn handle_anga_message(msg: &IncomingMessage) -> Result<(), KayaError> {
 }
 
 fn handle_meta_message(msg: &IncomingMessage) -> Result<(), KayaError> {
-    log_info(&format!(
-        "Received meta message: filename={:?}",
-        msg.filename
-    ));
+    log::info!("Received meta message: filename={:?}", msg.filename);
 
     ensure_directories()?;
 
@@ -374,10 +374,11 @@ fn sync_with_server() -> Result<(), KayaError> {
     let total_uploaded = anga_uploaded + meta_uploaded;
 
     if total_downloaded > 0 || total_uploaded > 0 {
-        log_info(&format!(
+        log::info!(
             "Sync complete: {} downloaded, {} uploaded",
-            total_downloaded, total_uploaded
-        ));
+            total_downloaded,
+            total_uploaded
+        );
     }
 
     Ok(())
@@ -431,10 +432,12 @@ fn sync_anga(
     let uploaded = to_upload.len();
 
     for filename in to_download {
+        log::info!("  downloading anga: {}", filename);
         download_anga(client, server, email, password, filename)?;
     }
 
     for filename in to_upload {
+        log::info!("  uploading anga: {}", filename);
         upload_anga(client, server, email, password, filename)?;
     }
 
@@ -501,11 +504,7 @@ fn upload_anga(
     if response.status() == reqwest::StatusCode::CONFLICT {
         // File already exists, that's fine
     } else if !response.status().is_success() {
-        log_error(&format!(
-            "Failed to upload anga {}: {}",
-            filename,
-            response.status()
-        ));
+        log::error!("Failed to upload anga {}: {}", filename, response.status());
     }
 
     Ok(())
@@ -559,10 +558,12 @@ fn sync_meta(
     let uploaded = to_upload.len();
 
     for filename in to_download {
+        log::info!("  downloading meta: {}", filename);
         download_meta(client, server, email, password, filename)?;
     }
 
     for filename in to_upload {
+        log::info!("  uploading meta: {}", filename);
         upload_meta(client, server, email, password, filename)?;
     }
 
@@ -627,11 +628,7 @@ fn upload_meta(
     if response.status() == reqwest::StatusCode::CONFLICT {
         // File already exists, that's fine
     } else if !response.status().is_success() {
-        log_error(&format!(
-            "Failed to upload meta {}: {}",
-            filename,
-            response.status()
-        ));
+        log::error!("Failed to upload meta {}: {}", filename, response.status());
     }
 
     Ok(())
@@ -657,12 +654,14 @@ fn mime_type_for(filename: &str) -> String {
 }
 
 fn main() {
+    setup_logging();
+
     if let Err(e) = ensure_directories() {
-        log_error(&format!("Failed to create directories: {}", e));
+        log::error!("Failed to create directories: {}", e);
         std::process::exit(1);
     }
 
-    log_info("Kaya sync daemon started");
+    log::info!("Kaya sync daemon started");
 
     let running = Arc::new(AtomicBool::new(true));
     let running_clone = running.clone();
@@ -670,7 +669,7 @@ fn main() {
     thread::spawn(move || {
         while running_clone.load(Ordering::Relaxed) {
             if let Err(e) = sync_with_server() {
-                log_error(&format!("Sync error: {}", e));
+                log::error!("Sync error: {}", e);
             }
             thread::sleep(Duration::from_secs(60));
         }
@@ -711,16 +710,16 @@ fn main() {
                 };
 
                 if let Err(e) = write_native_message(&response) {
-                    log_error(&format!("Failed to write response: {}", e));
+                    log::error!("Failed to write response: {}", e);
                 }
             }
             Ok(None) => {
                 running.store(false, Ordering::Relaxed);
-                log_info("Kaya sync daemon shutting down");
+                log::info!("Kaya sync daemon shutting down");
                 break;
             }
             Err(e) => {
-                log_error(&format!("Error reading message: {}", e));
+                log::error!("Error reading message: {}", e);
                 let response = OutgoingMessage {
                     id: None,
                     success: false,

@@ -22,6 +22,8 @@ rand = "0.8"
 chrono = "0.4"
 thiserror = "1.0"
 urlencoding = "2.1"
+log = "0.4"
+fern = "0.7"
 
 [profile.release]
 opt-level = "z"
