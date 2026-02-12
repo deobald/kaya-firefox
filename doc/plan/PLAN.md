@@ -4,13 +4,14 @@ LLM agents must create a Markdown plan document **in this directory** (`doc/plan
 
 * `2025-12-25-add-settings-for-service-login.md`
 * `2026-01-31-r-extract-behavior-from-controllers-to-models.md` ('r' for 'refactoring')
+* `2027-02-13-fix-filename-handling-on-sync.md`
 
 Before creating the plan, read these documents: 
 
-* [@README.md](./README.md)
-* [@AGENTS.md](./AGENTS.md)
-* [doc/design/DESIGN.md](./doc/design/DESIGN.md)
-* [doc/arch/*.md](./doc/arch/)
+* [@README.md](../../README.md)
+* [@AGENTS.md](../../AGENTS.md)
+* [doc/design/DESIGN.md](../doc/design/DESIGN.md)
+* [doc/arch/*.md](../doc/arch/)
 
 Then create the plan **in `doc/plan/`** and ask any clarifying questions you have. After I answer your questions to eliminate ambiguity, adjust the plan accordingly. Ask more clarifying questions, if required, and repeat the process until all your questions are answered.
 

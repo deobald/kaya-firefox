@@ -15,7 +15,7 @@ Requirements: Rust toolchain (rustup)
 
 ```bash
 cd sync-daemon
-./install.sh
+./install.sh          # runs the build, then installs
 ```
 
 This will:
@@ -23,6 +23,12 @@ This will:
 - Install the binary to `/usr/local/bin/kaya-sync-daemon`
 - Install the native messaging manifest
 - Create `~/.kaya/anga/` and `~/.kaya/meta/` directories
+
+```bash
+# If you only want to build, without installing:
+cargo build           # debug
+cargo build --release # release
+```
 
 ### 1.b Build the Firefox Extension locally (optional)
 
