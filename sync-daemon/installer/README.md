@@ -56,7 +56,7 @@ dotnet build -c Release
 
 1. Installs `kaya-sync-daemon.exe` to `C:\Program Files\Kaya\`
 2. Installs the native messaging manifest JSON file
-3. Creates a registry key at `HKLM\SOFTWARE\Mozilla\NativeMessagingHosts\ca.deobald.Kaya.nativehost`
+3. Creates a registry key at `HKLM\SOFTWARE\Mozilla\NativeMessagingHosts\org.savebutton.nativehost`
 4. Creates the `%USERPROFILE%\.kaya\anga` and `%USERPROFILE%\.kaya\meta` directories
 
 ## Uninstallation

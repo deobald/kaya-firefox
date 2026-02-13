@@ -3,5 +3,5 @@
   "description": "Save Button Sync Daemon - Native messaging host for the Save Button Firefox extension",
   "path": "C:\\Program Files\\Save Button\\savebutton-sync-daemon.exe",
   "type": "stdio",
-  "allowed_extensions": ["org.savebutton@savebutton.org"],
+  "allowed_extensions": ["org.savebutton@savebutton.org"]
 }

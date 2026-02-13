@@ -3,5 +3,5 @@
   "description": "Save Button Sync Daemon - Native messaging host for the Save Button Firefox extension",
   "path": "/usr/local/bin/savebutton-sync-daemon",
   "type": "stdio",
-  "allowed_extensions": ["org.savebutton@savebutton.org"],
+  "allowed_extensions": ["org.savebutton@savebutton.org"]
 }

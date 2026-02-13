@@ -5,7 +5,7 @@ This repository will contain two tightly related projects:
 * `/extension` contains a Firefox browser extension
 * `/sync-daemon` contains a small, native sync engine written in Rust
 
-Both will be named "Kaya", to the user. The application name can be `ca.deobald.Kaya.nativehost` in the native messaging manifest. The application (gecko) ID can be `ca.deobald.Kaya@deobald.ca` in both the native messaging manifest (`ca.deobald.Kaya.nativehost.json`) and the extension's `manifest.json`. Though as long as it's correct and symmetrical, the name/id doesn't matter.
+Both will be named "Save Button", to the user. The application name can be `org.savebutton.nativehost` in the native messaging manifest. The application (gecko) ID can be `org.savebutton@savebutton.org` in both the native messaging manifest (`org.savebutton.nativehost.json`) and the extension's `manifest.json`. Though as long as it's correct and symmetrical, the name/id doesn't matter.
 
 ## Planning
 

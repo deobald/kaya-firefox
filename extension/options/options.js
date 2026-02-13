@@ -81,25 +81,22 @@
     showStatus("Testing connection...", "info");
 
     try {
-      const response = await fetch(
-        `${server}/api/v1/${encodeURIComponent(email)}/anga`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: "Basic " + btoa(`${email}:${password}`),
-          },
+      const response = await browser.runtime.sendMessage({
+        action: "testConnection",
+        data: {
+          message: "test_connection",
+          server: server,
+          email: email,
+          password: password,
         },
-      );
+      });
 
-      if (response.ok) {
+      if (response && response.error) {
+        showStatus("Connection failed: " + response.error, "error");
+      } else if (response && response.success) {
         showStatus("Connection successful!", "success");
-      } else if (response.status === 401) {
-        showStatus(
-          "Authentication failed - check your email and password",
-          "error",
-        );
       } else {
-        showStatus(`Server returned status ${response.status}`, "error");
+        showStatus("Connection failed: no response from daemon", "error");
       }
     } catch (error) {
       showStatus("Connection failed: " + error.message, "error");

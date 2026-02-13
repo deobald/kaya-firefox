@@ -188,6 +188,46 @@ fn save_config(config: &Config) -> Result<(), KayaError> {
     Ok(())
 }
 
+fn handle_test_connection(msg: &IncomingMessage) -> Result<(), KayaError> {
+    let server = msg
+        .server
+        .as_ref()
+        .ok_or_else(|| KayaError::Config("Missing server".to_string()))?;
+    let email = msg
+        .email
+        .as_ref()
+        .ok_or_else(|| KayaError::Config("Missing email".to_string()))?;
+    let password = msg
+        .password
+        .as_ref()
+        .ok_or_else(|| KayaError::Config("Missing password".to_string()))?;
+
+    let url = format!(
+        "{}/api/v1/{}/anga",
+        server.trim_end_matches('/'),
+        urlencoding::encode(email)
+    );
+
+    log::info!("Testing connection to {}", url);
+
+    let client = reqwest::blocking::Client::new();
+    let response = client.get(&url).basic_auth(email, Some(password)).send()?;
+
+    if response.status().is_success() {
+        log::info!("Connection test successful");
+        Ok(())
+    } else if response.status() == reqwest::StatusCode::UNAUTHORIZED {
+        Err(KayaError::Config(
+            "Authentication failed - check your email and password".to_string(),
+        ))
+    } else {
+        Err(KayaError::Config(format!(
+            "Server returned status {}",
+            response.status()
+        )))
+    }
+}
+
 fn handle_config_message(msg: &IncomingMessage) -> Result<(), KayaError> {
     log::info!(
         "Received config message: server={:?}, email={:?}",
@@ -681,6 +721,7 @@ fn main() {
                 let id = msg.id;
                 let result = match msg.message.as_str() {
                     "config" => handle_config_message(&msg),
+                    "test_connection" => handle_test_connection(&msg),
                     "anga" => handle_anga_message(&msg),
                     "meta" => handle_meta_message(&msg),
                     other => Err(KayaError::Config(format!(

@@ -231,6 +231,13 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .catch((error) => sendResponse({ error: error.message }));
     return true;
   }
+
+  if (request.action === "testConnection") {
+    sendToNativeHost(request.data)
+      .then((response) => sendResponse(response))
+      .catch((error) => sendResponse({ error: error.message }));
+    return true;
+  }
 });
 
 connectToNativeHost();

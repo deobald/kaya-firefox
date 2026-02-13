@@ -96,6 +96,6 @@ The daemon automatically syncs with the configured Kaya server every 60 seconds.
 
 ## Native Messaging Manifest Locations
 
-- Linux: `~/.mozilla/native-messaging-hosts/ca.deobald.Kaya.nativehost.json`
-- macOS: `~/Library/Application Support/Mozilla/NativeMessagingHosts/ca.deobald.Kaya.nativehost.json`
+- Linux: `~/.mozilla/native-messaging-hosts/org.savebutton.nativehost.json`
+- macOS: `~/Library/Application Support/Mozilla/NativeMessagingHosts/org.savebutton.nativehost.json`
 - Windows: Registry key pointing to manifest file
