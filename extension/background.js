@@ -238,6 +238,13 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .catch((error) => sendResponse({ error: error.message }));
     return true;
   }
+
+  if (request.action === "checkConfigStatus") {
+    sendToNativeHost({ message: "config_status" })
+      .then((response) => sendResponse(response))
+      .catch((error) => sendResponse({ error: error.message }));
+    return true;
+  }
 });
 
 connectToNativeHost();

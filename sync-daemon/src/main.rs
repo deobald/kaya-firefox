@@ -86,6 +86,8 @@ struct OutgoingMessage {
     urls: Option<Vec<String>>,
     #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
     message_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    has_password: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default)]
@@ -188,30 +190,56 @@ fn save_config(config: &Config) -> Result<(), KayaError> {
     Ok(())
 }
 
+fn handle_config_status(_msg: &IncomingMessage) -> Result<bool, KayaError> {
+    let config = load_config()?;
+    let has_password = config.encrypted_password.is_some();
+    Ok(has_password)
+}
+
 fn handle_test_connection(msg: &IncomingMessage) -> Result<(), KayaError> {
+    let config = load_config()?;
+
     let server = msg
         .server
         .as_ref()
-        .ok_or_else(|| KayaError::Config("Missing server".to_string()))?;
+        .or(config.server.as_ref())
+        .ok_or_else(|| KayaError::Config("Missing server".to_string()))?
+        .clone();
     let email = msg
         .email
         .as_ref()
-        .ok_or_else(|| KayaError::Config("Missing email".to_string()))?;
-    let password = msg
-        .password
-        .as_ref()
-        .ok_or_else(|| KayaError::Config("Missing password".to_string()))?;
+        .or(config.email.as_ref())
+        .ok_or_else(|| KayaError::Config("Missing email".to_string()))?
+        .clone();
+
+    let password = if let Some(pwd) = msg.password.as_ref() {
+        pwd.clone()
+    } else {
+        match (&config.encrypted_password, &config.encryption_key) {
+            (Some(enc), Some(key_b64)) => {
+                let key_bytes = BASE64.decode(key_b64)?;
+                let key: [u8; KEY_LEN] = key_bytes
+                    .try_into()
+                    .map_err(|_| KayaError::Encryption("Invalid key length".to_string()))?;
+                decrypt_password(enc, &key)?
+            }
+            _ => return Err(KayaError::Config("No password configured".to_string())),
+        }
+    };
 
     let url = format!(
         "{}/api/v1/{}/anga",
         server.trim_end_matches('/'),
-        urlencoding::encode(email)
+        urlencoding::encode(&email)
     );
 
     log::info!("Testing connection to {}", url);
 
     let client = reqwest::blocking::Client::new();
-    let response = client.get(&url).basic_auth(email, Some(password)).send()?;
+    let response = client
+        .get(&url)
+        .basic_auth(&email, Some(&password))
+        .send()?;
 
     if response.status().is_success() {
         log::info!("Connection test successful");
@@ -235,22 +263,24 @@ fn handle_config_message(msg: &IncomingMessage) -> Result<(), KayaError> {
         msg.email
     );
 
-    let server = msg.server.clone();
-    let email = msg.email.clone();
-    let password = msg.password.clone();
+    let existing = load_config().unwrap_or_default();
 
-    let key = generate_encryption_key();
-    let encrypted_password = if let Some(ref pwd) = password {
-        Some(encrypt_password(pwd, &key)?)
+    let server = msg.server.clone().or(existing.server);
+    let email = msg.email.clone().or(existing.email);
+
+    let (encrypted_password, encryption_key) = if let Some(ref pwd) = msg.password {
+        let key = generate_encryption_key();
+        let enc = encrypt_password(pwd, &key)?;
+        (Some(enc), Some(BASE64.encode(key)))
     } else {
-        None
+        (existing.encrypted_password, existing.encryption_key)
     };
 
     let config = Config {
         server,
         email,
         encrypted_password,
-        encryption_key: Some(BASE64.encode(key)),
+        encryption_key,
     };
 
     save_config(&config)?;
@@ -719,35 +749,59 @@ fn main() {
         match read_native_message() {
             Ok(Some(msg)) => {
                 let id = msg.id;
-                let result = match msg.message.as_str() {
-                    "config" => handle_config_message(&msg),
-                    "test_connection" => handle_test_connection(&msg),
-                    "anga" => handle_anga_message(&msg),
-                    "meta" => handle_meta_message(&msg),
-                    other => Err(KayaError::Config(format!(
-                        "Unknown message type: {}",
-                        other
-                    ))),
-                };
 
-                let response = match result {
-                    Ok(_) => {
-                        let urls = get_all_bookmarked_urls().ok();
-                        OutgoingMessage {
+                let response = if msg.message == "config_status" {
+                    match handle_config_status(&msg) {
+                        Ok(has_password) => OutgoingMessage {
                             id,
                             success: true,
                             error: None,
-                            urls,
-                            message_type: Some("bookmarks".to_string()),
-                        }
+                            urls: None,
+                            message_type: None,
+                            has_password: Some(has_password),
+                        },
+                        Err(e) => OutgoingMessage {
+                            id,
+                            success: false,
+                            error: Some(e.to_string()),
+                            urls: None,
+                            message_type: None,
+                            has_password: None,
+                        },
                     }
-                    Err(e) => OutgoingMessage {
-                        id,
-                        success: false,
-                        error: Some(e.to_string()),
-                        urls: None,
-                        message_type: None,
-                    },
+                } else {
+                    let result = match msg.message.as_str() {
+                        "config" => handle_config_message(&msg),
+                        "test_connection" => handle_test_connection(&msg),
+                        "anga" => handle_anga_message(&msg),
+                        "meta" => handle_meta_message(&msg),
+                        other => Err(KayaError::Config(format!(
+                            "Unknown message type: {}",
+                            other
+                        ))),
+                    };
+
+                    match result {
+                        Ok(_) => {
+                            let urls = get_all_bookmarked_urls().ok();
+                            OutgoingMessage {
+                                id,
+                                success: true,
+                                error: None,
+                                urls,
+                                message_type: Some("bookmarks".to_string()),
+                                has_password: None,
+                            }
+                        }
+                        Err(e) => OutgoingMessage {
+                            id,
+                            success: false,
+                            error: Some(e.to_string()),
+                            urls: None,
+                            message_type: None,
+                            has_password: None,
+                        },
+                    }
                 };
 
                 if let Err(e) = write_native_message(&response) {
@@ -767,6 +821,7 @@ fn main() {
                     error: Some(e.to_string()),
                     urls: None,
                     message_type: None,
+                    has_password: None,
                 };
                 let _ = write_native_message(&response);
             }

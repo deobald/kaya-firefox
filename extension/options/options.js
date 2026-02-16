@@ -6,6 +6,13 @@
   const testBtn = document.getElementById("test-btn");
   const statusDiv = document.getElementById("status");
 
+  const PASSWORD_SENTINEL = "••••••••";
+  let passwordChanged = false;
+
+  passwordInput.addEventListener("input", () => {
+    passwordChanged = true;
+  });
+
   function showStatus(message, type) {
     statusDiv.textContent = message;
     statusDiv.className = type;
@@ -25,19 +32,30 @@
     } catch (error) {
       console.error("Failed to load settings:", error);
     }
+
+    try {
+      const status = await browser.runtime.sendMessage({
+        action: "checkConfigStatus",
+      });
+      if (status && status.has_password) {
+        passwordInput.value = PASSWORD_SENTINEL;
+        passwordChanged = false;
+      }
+    } catch (error) {
+      console.error("Failed to check config status:", error);
+    }
   }
 
   async function saveSettings() {
     const server = serverInput.value.trim() || "https://savebutton.com";
     const email = emailInput.value.trim();
-    const password = passwordInput.value;
 
     if (!email) {
       showStatus("Email is required", "error");
       return;
     }
 
-    if (!password) {
+    if (passwordChanged && !passwordInput.value) {
       showStatus("Password is required", "error");
       return;
     }
@@ -49,8 +67,11 @@
         message: "config",
         server: server,
         email: email,
-        password: password,
       };
+
+      if (passwordChanged) {
+        configMessage.password = passwordInput.value;
+      }
 
       const response = await browser.runtime.sendMessage({
         action: "sendConfig",
@@ -61,7 +82,8 @@
         showStatus("Error: " + response.error, "error");
       } else {
         showStatus("Settings saved successfully", "success");
-        passwordInput.value = "";
+        passwordInput.value = PASSWORD_SENTINEL;
+        passwordChanged = false;
       }
     } catch (error) {
       showStatus("Error: " + error.message, "error");
@@ -71,24 +93,33 @@
   async function testConnection() {
     const server = serverInput.value.trim() || "https://savebutton.com";
     const email = emailInput.value.trim();
-    const password = passwordInput.value;
 
-    if (!email || !password) {
-      showStatus("Email and password are required to test connection", "error");
+    if (!email) {
+      showStatus("Email is required to test connection", "error");
+      return;
+    }
+
+    if (passwordChanged && !passwordInput.value) {
+      showStatus("Password is required to test connection", "error");
       return;
     }
 
     showStatus("Testing connection...", "info");
 
     try {
+      const data = {
+        message: "test_connection",
+        server: server,
+        email: email,
+      };
+
+      if (passwordChanged) {
+        data.password = passwordInput.value;
+      }
+
       const response = await browser.runtime.sendMessage({
         action: "testConnection",
-        data: {
-          message: "test_connection",
-          server: server,
-          email: email,
-          password: password,
-        },
+        data: data,
       });
 
       if (response && response.error) {
