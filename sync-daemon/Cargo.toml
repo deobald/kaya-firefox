@@ -6,6 +6,10 @@ authors = ["deobald.ca"]
 description = "Native sync daemon for the Save Button Firefox extension"
 license = "MIT"
 
+[lib]
+name = "savebutton_sync_daemon"
+path = "src/lib.rs"
+
 [[bin]]
 name = "savebutton-sync-daemon"
 path = "src/main.rs"

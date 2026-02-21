@@ -411,6 +411,8 @@ fn write_native_message(msg: &OutgoingMessage) -> Result<(), KayaError> {
     Ok(())
 }
 
+use savebutton_sync_daemon::parse_server_file_listing;
+
 fn sync_with_server() -> Result<(), KayaError> {
     let config = load_config()?;
 
@@ -472,16 +474,7 @@ fn sync_anga(
         return Err(KayaError::Http(response.error_for_status().unwrap_err()));
     }
 
-    let server_files: HashSet<String> = response
-        .text()?
-        .lines()
-        .map(|l| {
-            urlencoding::decode(l.trim())
-                .unwrap_or_default()
-                .to_string()
-        })
-        .filter(|s| !s.is_empty())
-        .collect();
+    let server_files: HashSet<String> = parse_server_file_listing(&response.text()?);
 
     let anga_dir = get_anga_dir();
     let local_files: HashSet<String> = if anga_dir.exists() {
@@ -521,11 +514,12 @@ fn download_anga(
     password: &str,
     filename: &str,
 ) -> Result<(), KayaError> {
+    // filename is already URL-encoded from the server listing
     let url = format!(
         "{}/api/v1/{}/anga/{}",
         server.trim_end_matches('/'),
         urlencoding::encode(email),
-        urlencoding::encode(filename)
+        filename
     );
 
     let response = client.get(&url).basic_auth(email, Some(password)).send()?;
@@ -598,16 +592,7 @@ fn sync_meta(
         return Err(KayaError::Http(response.error_for_status().unwrap_err()));
     }
 
-    let server_files: HashSet<String> = response
-        .text()?
-        .lines()
-        .map(|l| {
-            urlencoding::decode(l.trim())
-                .unwrap_or_default()
-                .to_string()
-        })
-        .filter(|s| !s.is_empty())
-        .collect();
+    let server_files: HashSet<String> = parse_server_file_listing(&response.text()?);
 
     let meta_dir = get_meta_dir();
     let local_files: HashSet<String> = if meta_dir.exists() {
@@ -647,11 +632,12 @@ fn download_meta(
     password: &str,
     filename: &str,
 ) -> Result<(), KayaError> {
+    // filename is already URL-encoded from the server listing
     let url = format!(
         "{}/api/v1/{}/meta/{}",
         server.trim_end_matches('/'),
         urlencoding::encode(email),
-        urlencoding::encode(filename)
+        filename
     );
 
     let response = client.get(&url).basic_auth(email, Some(password)).send()?;
